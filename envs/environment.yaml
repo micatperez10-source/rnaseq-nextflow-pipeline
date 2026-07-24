@@ -1,0 +1,13 @@
+name: rnaseq-pipeline-env
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - fastqc=0.12.1
+  - multiqc=1.19
+  - salmon=1.10.2
+  - r-base=4.3.2
+  - r-deseq2=1.42.0
+  - r-ggplot2=3.4.4
+  - r-pheatmap=1.0.12
