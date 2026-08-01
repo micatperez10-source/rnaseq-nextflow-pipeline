@@ -1,0 +1,11 @@
+# Archivos temporales y de ejecución de Nextflow
+work/
+.nextflow/
+.nextflow.log*
+
+# Resultados generados por el pipeline
+results/
+
+# Datos de prueba pesados
+data/*.fastq.gz
+data/*.fastq

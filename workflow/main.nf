@@ -1,48 +1,17 @@
-#!/usr/bin/env nextflow
-
 nextflow.enable.dsl=2
 
-log.info """
-==================================================
- R N A S E Q - P I P E L I N E (DSL2)
-==================================================
- Reads        : ${params.reads}
- Output Dir   : ${params.outdir}
-==================================================
-"""
-
-process FASTQC {
-    tag "QC on ${read_id}"
-    publishDir "${params.outdir}/fastqc", mode: 'copy'
-
-    input:
-    tuple val(read_id), path(reads)
-
-    output:
-    path "*.html", emit: html
-    path "*.zip" , emit: zip
-
-    script:
-    """
-    fastqc -q ${reads}
-    """
-}
-
-process MULTIQC {
-    publishDir "${params.outdir}/multiqc", mode: 'copy'
-
-    input:
-    path qc_files
-
-    output:
-    path "multiqc_report.html"
-
-    script:
-    """
-    multiqc .
-    """
-}
+include { FASTQC } from '../modules/local/fastqc'
+include { MULTIQC } from '../modules/local/multiqc'
 
 workflow {
-    log.info "Pipeline ready to process samples..."
+
+    // 1. Resolver el archivo físico absoluto
+    ch_input = Channel.fromPath(params.input, checkIfExists: true)
+                      .map { file -> tuple([id: file.simpleName], file) }
+
+    // 2. Ejecutar FastQC
+    FASTQC(ch_input)
+
+    // 3. Pasar los resultados de FastQC a MultiQC
+    MULTIQC(FASTQC.out.zip.collect { it[1] })
 }
